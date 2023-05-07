@@ -1,5 +1,3 @@
 #!/bin/bash
  
-# roslaunch realsense2_camera rs_t265.launch
-
-ls
+roslaunch realsense2_camera rs_t265.launch
