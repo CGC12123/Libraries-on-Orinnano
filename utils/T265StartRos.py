@@ -6,9 +6,9 @@ sh1 = "./bash/T265_Start_1.sh"
 sh2 = "./bash/T265_Start_2.sh"
 sh3 = "./bash/T265_Start_3.sh"
 
-subprocess.Popen(['gnome-terminal', '-x', 'bash', '-c', sh1])
-subprocess.Popen(['gnome-terminal', '-x', 'bash', '-c', sh2])
-subprocess.Popen(['gnome-terminal', '-x', 'bash', '-c', sh3])
+subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', sh1])
+subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', sh2])
+subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', sh3])
 
 # time.sleep(3)
 
