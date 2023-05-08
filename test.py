@@ -1,12 +1,7 @@
-'''
-带通信
-
-'''
-
 import cv2
 import cv2 as cv
 import numpy as np
-# from communite_module.Communications import SelfSerial
+from communite_module.Communications import SelfSerial
 from loguru import logger
 import math
 import time
@@ -81,17 +76,18 @@ def get_gigh_low_data(data):
 if __name__ == "__main__":
     #  定义颜色字典
     color_dist = {  'blue': {'lower':np.array([98, 112, 75]), 'high':np.array([179, 255, 255])},
-                    'red': {'lower':np.array([0, 196, 104]), 'high':np.array([179,255,255])},
-                    }
+                    'red': {'lower':np.array([0, 196, 104]), 'high':np.array([179,255,255])},}
 
-    # self_serial = SelfSerial("/dev/ttyAMA1")
+    self_serial = SelfSerial("/dev/ttyUSB1")
     # cap = cv.VideoCapture(2)# 下摄像头
-    cap = cv.VideoCapture(0)# 前摄像头
+    cap = cv.VideoCapture(1)# 前摄像头
+    # cap.set(3, 640)
+    # cap.set(4, 480)
     model = 0 # 模式
     target_shape = ' '
     target_color = ' '
     while True:
-        # model = self_serial.uart_read_mode(model)
+        model = self_serial.uart_read_mode(model)
         #识别匹配目标颜色与形状
         model = 10
         if model == 0: # 发送上线消息
@@ -106,7 +102,7 @@ if __name__ == "__main__":
             
                 logger.info(msg)
                 if msg:
-                    # self_serial.uart_send_msg(20, msg)
+                    self_serial.uart_send_msg(20, msg)
                     print(msg)
 
 
