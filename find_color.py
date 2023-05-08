@@ -77,10 +77,9 @@ if __name__ == "__main__":
     color_dist = {  'blue': {'lower':np.array([98, 112, 75]), 'high':np.array([179, 255, 255])},
                     'red': {'lower':np.array([0, 196, 104]), 'high':np.array([179,255,255])},}
 
-    os.system("echo 123456 | sudo -S chmod 777 /dev/ttyUSB1")
-    self_serial = SelfSerial("/dev/ttyUSB1") # 和飞控通信的ch340
+    self_serial = SelfSerial("/dev/ttyUSB0") # 和飞控通信的ch340
     # cap = cv.VideoCapture(2)# 下摄像头
-    cap = cv.VideoCapture(0)# 前摄像头
+    cap = cv.VideoCapture(1)# 前摄像头
     # cap.set(3, 640)
     # cap.set(4, 480)
     model = 0 # 模式
