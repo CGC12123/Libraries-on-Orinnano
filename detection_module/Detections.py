@@ -11,14 +11,68 @@ from utils.SplitInt import get_gigh_low_data
 class Detections():
     def __init__(self):
         self.pen_color = [[51,153,255],[255,0,255],[0,255,0]]
-        self.blue = []
-        self.red = []
-        self.template = cv2.imread('/home/rock/code/Vedio/rockpi/samples/YuanDian.png')
+        self.color_dist = { 'red': {'lower':np.array([0,102,0]), 'high':np.array([57,255,255])},
+                            'blue': {'lower':np.array([107, 85, 72]), 'high':np.array([125, 255, 255])}}
+        # self.template = cv2.imread('/home/rock/code/Vedio/rockpi/samples/YuanDian.png')
         Methods = [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED, cv2.TM_CCORR, cv2.TM_CCORR_NORMED, cv2.TM_CCOEFF, cv2.TM_CCOEFF_NORMED]
         self.method = Methods[5]
         self.location = [0, 0]
         self.color = 0
         self.coner = 0
+        self.target_x = 0
+        self.target_y = 0
+        self.target_distance = 0
+
+    def find_biggest_color(self, image, color):
+        low = self.color_dist[color]['lower'] # 阈值设置
+        high = self.color_dist[color]['high']
+
+        flag = 0 # 标志位，识别到为1
+
+        image_gaussian = cv2.GaussianBlur(image, (5, 5), 0)     # 高斯滤波
+        imgHSV = cv2.cvtColor(image_gaussian, cv2.COLOR_BGR2HSV) # 转换色彩空间
+
+        kernel = np.ones((5,5),np.uint8)  # 卷积核
+        mask = cv2.erode(imgHSV, kernel, iterations=2)
+        mask = cv2.dilate(mask, kernel, iterations=1)
+        mask = cv2.inRange(mask, low, high)
+        cnts = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2] # 检测外轮廓
+        try:
+            for i in cnts:
+                perimeter = cv2.arcLength(i,True)
+                approx = cv2.approxPolyDP(i,0.02*perimeter,True)                                             # 角的数量
+                rect = cv2.minAreaRect(i)
+                box = cv2.boxPoints(rect)
+                cv2.drawContours(image, [np.int0(box)], -1, (0, 255, 255), 2)
+                left_point_x = np.min(box[:, 0])
+                right_point_x = np.max(box[:, 0])
+                top_point_y = np.min(box[:, 1])
+                bottom_point_y = np.max(box[:, 1])
+                
+                mid_point_x = (left_point_x + right_point_x)/2
+                mid_point_y = (top_point_y + bottom_point_y)/2
+                
+                mid_point_x = round(mid_point_x, 2) # 保留两位小数
+                mid_point_y = round(mid_point_y, 2)
+
+                distance = (((mid_point_x - 320) ** 2) + ((mid_point_y - 240) ** 2))**0.5
+
+                if((distance < temp_distance) or temp_distance == 0):
+                    target_x = mid_point_x
+                    target_y = mid_point_y
+                    temp_distance = distance
+            print("coordinate is (%d, %d)" %(target_x, target_y))
+            flag = 1
+            
+        except :
+            #print("get failed")
+            target_x = 0
+            target_y = 0
+            temp_distance = 0
+            
+        #image = cv.flip(image, 1) # 镜像操作
+        cv2.imshow('camera', image)
+        cv2.waitKey(1)
 
     def get_color(self,image):
         center = 0
