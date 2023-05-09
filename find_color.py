@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
     self_serial = SelfSerial("/dev/ttyUSB0") # 和飞控通信的ch340
     # cap = cv.VideoCapture(2)# 下摄像头
-    cap = cv.VideoCapture(1)# 前摄像头
+    cap = cv.VideoCapture(0)# 前摄像头
     # cap.set(3, 640)
     # cap.set(4, 480)
     model = 0 # 模式

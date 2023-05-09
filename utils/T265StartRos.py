@@ -12,8 +12,7 @@ def T265_Start():
 
     time.sleep(3)
 
-    subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', "ls"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    os.system(sh2_1)
+    subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', sh2_1], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     os.system(sh2_2)
 
     time.sleep(3)
