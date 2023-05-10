@@ -1,35 +1,27 @@
 from communite_module.Communications import SelfSerial
-from detection_module.Detections import Detections
+from Detections import Detections
+from utils.SplitInt import get_high_low_data
 
 from loguru import logger
 import cv2
 
 
 if __name__ == '__main__':
-    self_serial = SelfSerial('/dev/ttyUSB0')
-    detections = Detections()
+    # cv与飞控通信口
+    self_serial = SelfSerial('/dev/ttyUSB1')
 
-    cap = cv2.VideoCapture(0)
-    size = (640*0.5, 480*0.5)
+    # 实例化检测类
+    cap = cv2.VideoCapture(1)
+    size = (640, 480)
     cap.set(3, size[0])
     cap.set(4, size[1])
-    cap.set(10,150)
 
-    mode = 0
-
-
-    cap2 = cv2.VideoCapture(0)
-    cap2.set(3, size[0])
-    cap2.set(4, size[1])
-    cap2.set(10,150)
+    mode = 1
 
     logger.info('System Starting')
     while True:
-        if mode != 12:
-            ret,frame = cap.read()
-        elif mode == 12:
-            ret,frame = cap2.read()
-
+        ret, image = cap.read()
+        detection = Detections(image)
         if ret:
             mode = self_serial.uart_read_mode(mode)
 
@@ -37,44 +29,12 @@ if __name__ == '__main__':
             if mode == 0:
                 self_serial.uart_send_msg(0, (1, ))
 
+            # 追色块
             elif mode == 1:
-                msg = detections.transmit_keyboard_msg()
-                if msg:
-                    self_serial.uart_send_msg(1, msg)
-                mode = 50
-
-            elif mode == 10:
-                msg = detections.find_all(frame)
-                if msg:
-                    self_serial.uart_send_msg(10, msg)
-
-            #摄像头识别
-            elif mode == 11:
-                msg = detections.get_color()
-                if msg:
-                    self_serial.uart_send_msg(11, (msg, ))
-
-            #模式2 右飞
-            elif mode == 12:
-                msg = detections.find_color_forward(frame)
-                if msg:
-                    self_serial.uart_send_msg(12, msg)
+                detection.find_biggest_color('red')
+                logger.info('{}, {}'.format(int(detection.target_x), int(detection.target_y)))
+                msg = get_high_low_data(int(detection.target_x)) + get_high_low_data(int(detection.target_y))
+                self_serial.uart_send_msg(32, msg) # 理应发出20 32为十六进制的20
             
-            #模式二 前飞
-            elif mode == 13:
-                msg = detections.find_color_forward(frame)
-                if msg:
-                    self_serial.uart_send_msg(13, msg)
-
-            #降落 return 5 flag x_h x_l y_h y_l
-            elif mode  == 20:
-                msg = detections.Template(frame)
-                if msg:
-                    self_serial.uart_send_msg(20, msg)
-
-            elif mode == 50:
-                pass
-            
-
     cap.release()
     cv2.destroyAllWindows()
