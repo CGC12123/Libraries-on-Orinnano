@@ -62,7 +62,7 @@ def find_biggest(image, color):
     #image = cv.flip(image, 1) # 镜像操作
     cv.imshow('camera', image)
     cv.waitKey(1)
-    msg = (flag, ) + get_gigh_low_data(int(target_x)) + get_gigh_low_data(int(target_y))
+    msg = get_gigh_low_data(int(target_x)) + get_gigh_low_data(int(target_y))
     return msg # 返回坐标
 
 # 数据处理函数
@@ -75,33 +75,32 @@ def get_gigh_low_data(data):
 if __name__ == "__main__":
     #  定义颜色字典
     color_dist = {  'blue': {'lower':np.array([98, 112, 75]), 'high':np.array([179, 255, 255])},
-                    'red': {'lower':np.array([0, 196, 104]), 'high':np.array([179,255,255])},}
+                    'red': {'lower':np.array([0, 196, 104]), 'high':np.array([179,255,255])}}
 
-    self_serial = SelfSerial("/dev/ttyUSB0") # 和飞控通信的ch340
-    # cap = cv.VideoCapture(2)# 下摄像头
-    cap = cv.VideoCapture(0)# 前摄像头
-    # cap.set(3, 640)
-    # cap.set(4, 480)
+    self_serial = SelfSerial("/dev/ttyUSB1") # 和飞控通信的ch340
+    cap = cv.VideoCapture(1) # 摄像头
+    cap.set(3, 640)
+    cap.set(4, 480)
     model = 0 # 模式
     target_shape = ' '
     target_color = ' '
     while True:
-        model = self_serial.uart_read_mode(model)
+        # model = self_serial.uart_read_mode(model) # 读取
+        model = 1
         #识别匹配目标颜色与形状
-        model = 10
         if model == 0: # 发送上线消息
-            # self_serial.uart_send_msg(0, (1, ))
+            self_serial.uart_send_msg(0, (1, ))
             pass
 
-        elif model == 10 : # 任务一返回距离最近的物体坐标
+        elif model == 1 : # 任务一返回距离最近的物体坐标
 
             ret, frame = cap.read()
             if ret:
-                msg = find_biggest(frame, 'red')
+                msg = find_biggest(frame, 'blue')
             
-                logger.info(msg)
+                # logger.info(msg)
                 if msg:
-                    self_serial.uart_send_msg(20, msg)
+                    self_serial.uart_send_msg(32, msg)
                     print(msg)
 
 
