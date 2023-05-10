@@ -27,29 +27,27 @@ def find_biggest(image, color):
     mask = cv.inRange(mask, low, high)
     cnts = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[-2] # 检测外轮廓
     try:
-        for i in cnts:
-            perimeter = cv2.arcLength(i,True)
-            approx = cv2.approxPolyDP(i,0.02*perimeter,True) # 角的数量
-            rect = cv2.minAreaRect(i)
-            box = cv2.boxPoints(rect)
-            cv2.drawContours(frame, [np.int0(box)], -1, (0, 255, 255), 2)
-            left_point_x = np.min(box[:, 0])
-            right_point_x = np.max(box[:, 0])
-            top_point_y = np.min(box[:, 1])
-            bottom_point_y = np.max(box[:, 1])
-            
-            mid_point_x = (left_point_x + right_point_x)/2 # 理应除以2，但为了传输数据不超过256选择舍弃个位
-            mid_point_y = (top_point_y + bottom_point_y)/2
-            
-            mid_point_x = round(mid_point_x, 2) # 保留两位小数
-            mid_point_y = round(mid_point_y, 2)
+        max_contour = max(cnts, key=cv2.contourArea)
+        rect = cv2.minAreaRect(max_contour)
+        box = cv2.boxPoints(rect)
+        cv2.drawContours(frame, [np.int0(box)], -1, (0, 255, 255), 2)
+        left_point_x = np.min(box[:, 0])
+        right_point_x = np.max(box[:, 0])
+        top_point_y = np.min(box[:, 1])
+        bottom_point_y = np.max(box[:, 1])
+        
+        mid_point_x = (left_point_x + right_point_x)/2
+        mid_point_y = (top_point_y + bottom_point_y)/2
+        
+        mid_point_x = round(mid_point_x, 2) # 保留两位小数
+        mid_point_y = round(mid_point_y, 2)
 
-            distance = (((mid_point_x - 320) ** 2) + ((mid_point_y - 240) ** 2))**0.5
+        distance = (((mid_point_x - 320) ** 2) + ((mid_point_y - 240) ** 2))**0.5
 
-            if((distance < temp_distance) or temp_distance == 0):
-                target_x = mid_point_x
-                target_y = mid_point_y
-                temp_distance = distance
+        if((distance < temp_distance) or temp_distance == 0):
+            target_x = mid_point_x
+            target_y = mid_point_y
+            temp_distance = distance
         #print("coordinate is (%d, %d)" %(target_x, target_y))
         flag = 1
         
