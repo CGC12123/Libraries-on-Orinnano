@@ -22,4 +22,5 @@ def T265_Start():
                     stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     time.sleep(5)
 
-T265_Start()
+if __name__ == '__main__':
+    T265_Start()
