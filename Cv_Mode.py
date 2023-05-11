@@ -4,14 +4,16 @@ from utils.SplitInt import get_high_low_data
 
 from loguru import logger
 import cv2
+import os
 
 
 if __name__ == '__main__':
     # cv与飞控通信口
+    os.system("echo 123456 | sudo -S chmod 777 /dev/ttyUSB1")
     self_serial = SelfSerial('/dev/ttyUSB1')
 
     # 实例化检测类
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     size = (640, 480)
     cap.set(3, size[0])
     cap.set(4, size[1])
