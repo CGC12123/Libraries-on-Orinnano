@@ -33,10 +33,16 @@ if __name__ == '__main__':
 
             # 追色块
             elif mode == 1:
-                detection.find_biggest_color('red')
-                logger.info('{}, {}'.format(int(detection.target_x), int(detection.target_y)))
+                detection.find_biggest_color('red', show = 1)
                 msg = get_high_low_data(int(detection.target_x)) + get_high_low_data(int(detection.target_y))
                 self_serial.uart_send_msg(32, msg) # 理应发出20 32为十六进制的20
+            
+            elif mode == 2:
+                detection.detect_qrcode(show = 0)
+
+            # elif mode == 3:
+
+                
             
     cap.release()
     cv2.destroyAllWindows()
