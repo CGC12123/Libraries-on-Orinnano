@@ -1,11 +1,10 @@
-from communite_module.Communications import SelfSerial
-from detection_module.Detections import Detections
-from utils.SplitInt import get_high_low_data
-
 from loguru import logger
 import cv2
 import os
 
+from communite_module.Communications import SelfSerial
+from detection_module.Detections import Detections
+from utils.SplitInt import get_high_low_data
 
 if __name__ == '__main__':
     # cv与飞控通信口
@@ -18,7 +17,7 @@ if __name__ == '__main__':
     cap.set(3, size[0])
     cap.set(4, size[1])
 
-    mode = 4
+    mode = 0
 
     logger.info('System Starting')
     while True:
@@ -26,7 +25,7 @@ if __name__ == '__main__':
         detection = Detections(image)
         if ret:
             # 获取飞控指令
-            # mode = self_serial.uart_read_mode(mode)
+            mode = self_serial.uart_read_mode(mode)
 
             #发送上线消息
             if mode == 0:
@@ -38,12 +37,15 @@ if __name__ == '__main__':
                 msg = get_high_low_data(int(detection.target_x)) + get_high_low_data(int(detection.target_y))
                 self_serial.uart_send_msg(32, msg) # 理应发出20 32为十六进制的20
             
+            # 识别二维码或条形码
             elif mode == 2:
                 detection.detect_qrcode(show = 0)
 
+            # 字符识别
             elif mode == 3:
                 detection.detect_character(character = 'A', show = 1)
 
+            # 形状识别
             elif mode == 4:
                 detection.detect_shape(mode = 'get location', specify_color = 'red', target_shape = 'Circle', show = 1)
 
