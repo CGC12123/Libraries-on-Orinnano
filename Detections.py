@@ -3,7 +3,6 @@ from loguru import logger
 import numpy as np
 from pyzbar import pyzbar
 import pytesseract
-import os
 
 class Detections():
     def __init__(self, image):
@@ -22,9 +21,9 @@ class Detections():
         # 识别到的二维码信息
         self.qrcode_message = 0
         # 字符识别识别到的字符
-        self.character_message: str = '0'
-
-        self.img_num = len(os.listdir('./vis/det_color'))
+        self.character_message: str = ' '
+        # 形状识别识别到的形状
+        self.shape = ' '
 
     # 找寻最大色块
     def find_biggest_color(self, color, show: bool = 1):
@@ -73,7 +72,7 @@ class Detections():
 
         if show:
             # image = cv2.flip(image, 1) # 镜像操作 使用笔记本摄像头可用
-            cv2.imshow('red', self.image)
+            cv2.imshow('find_biggest_color', self.image)
             cv2.waitKey(1)
 
     # 寻找二维码或条形码
@@ -96,30 +95,157 @@ class Detections():
         
         if show:
             # img = cv2.flip(img, 1) # 镜像操作
-            cv2.imshow("QR", self.image)
+            cv2.imshow("detect_qrcode", self.image)
             cv2.waitKey(1) 
 
     # 字符识别
-    def detect_character(self, mode: str = '', show: bool = 1):
-
-        img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
+    def detect_character(self, mode: str = 'get position', character: str = '', show: bool = 1):
+        '''
+        mode:
+            get position: 找特殊字符的位置
+                character: 待识别的字符
+                    此算法使用流畅性很低
+            get character: 识别字符 (待更新)
+        '''
+        img_gray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
         boxes = pytesseract.image_to_boxes(img_gray)
+        if mode == 'get position':
+            for box in boxes.splitlines():
+                # print(box)
+                box = box.split(' ')
+                if box[0] == character:
+                    x, y, w, h = int(box[1]), int(box[2]), int(box[3]), int(box[4])
+                    cv2.rectangle(self.image, (x, 640 - y), (w, 480 - h), (0, 0, 255), 2)
 
-        for box in boxes.splitlines():
-            # print(box)
-            box = box.split(' ')
-            if box[0] == 'A':
-                x, y, w, h = int(box[1]), int(box[2]), int(box[3]), int(box[4])
-                cv2.rectangle(img, (x, 640 - y), (w, 480 - h), (0, 0, 255), 2)
+                    self.target_x = (x + w)/2
+                    self.target_y = (640 + 480)/2
 
-                mid_x = (x + w)/2
-                mid_y = (640 + 480)/2
-
-                print("(%d, %d)" %(mid_x,mid_y))
+                    logger.info('character positon: ', self.target_x, self.target_y)
             
         # cv.rectangle(img_edge, top_left, bottom_right, (0,255,0), 2) # 测试用，在轮廓图上画框
 
-        img = cv2.flip(img, 1) # 镜像操作
-        cv2.imshow('camera', img)
-        cv2.waitKey(1)
+        # self.image = cv2.flip(self.image, 1) # 镜像操作
+        if show: 
+            cv2.imshow('detect_character', self.image)
+            cv2.waitKey(1)
+
+    # 工具函数
+    def angle_cos(self, p0, p1, p2):
+        d1, d2 = (p0-p1).astype('float'), (p2-p1).astype('float')
+        return abs(np.dot(d1, d2) / np.sqrt(np.dot(d1, d1) * np.dot(d2, d2) ) )
+
+    # 识别形状
+    def detect_shape(self, mode: str = ' ', specify_color: str = ' ', target_shape = ' ', show: bool = 1):
+        '''
+        mode:
+            get shape: 寻找最大的那个形状
+            get location: 找距离中心最近的
+        
+        special_color:
+            指定要识别的物体的颜色
+        taeget_shape:
+            在模式get location中所需要检测的物体形状
+                Triangle / Square / Circle
+
+        '''
+        image_gaussian = cv2.GaussianBlur(self.image, (5, 5), 0)     # 高斯滤波
+        imgHSV = cv2.cvtColor(image_gaussian, cv2.COLOR_BGR2HSV) # 转换色彩空间
+
+        kernel = np.ones((5,5),np.uint8)  # 卷积核
+        mask = cv2.erode(imgHSV, kernel, iterations=2)
+        mask = cv2.dilate(mask, kernel, iterations=1)
+        if specify_color is not ' ':
+            low = self.color_dist[specify_color]['lower']
+            high = self.color_dist[specify_color]['high']
+            mask = cv2.inRange(mask, low, high) # 筛选对应颜色
+        
+        imgcanny = cv2.Canny(mask, 0, 100) # 颜色范围内边缘检测
+        if mode == 'get shape':
+            try:
+                cnts = cv2.findContours(imgcanny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2] # 检测外轮廓
+                area_max = max(cnts, key = cv2.contourArea) # 得到最大轮廓
+                rect = cv2.minAreaRect(area_max)     # 绘制每个轮廓的最小外接矩形的方法
+                box = cv2.boxPoints(rect)            # 获取矩形的四个顶点坐标
+                cv2.drawContours(self.image, [np.int0(box)], -1, (0, 255, 255), 2)    # 绘制矩形
+
+                area = cv2.contourArea(area_max)
+                perimeter = cv2.arcLength(area_max,True)
+                approx = cv2.approxPolyDP(area_max,0.02*perimeter,True)
+                CornerNum = len(approx) # 角的数量
+                rect = cv2.minAreaRect(area_max)
+                box = cv2.boxPoints(rect)
+                x, y, w, h = cv2.boundingRect(approx)
+                if CornerNum ==3:
+                    print("Triangle")
+                    self.shape = 'Triangle'
+                elif 4>=CornerNum and CornerNum <= 7:
+                    print("Square")
+                    self.shape = 'Square'
+                elif CornerNum>7:
+                    print("Circle")
+                    self.shape = 'Circle'
+                else:
+                    print("未识别到")
+                    self.shape = 'NULL'
+            except:
+                self.shape = 'NULL'
+        elif mode == 'get location':
+            r_cnts = []
+            target_recognize = ' '
+            cnts = cv2.findContours(imgcanny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2] # 检测外轮廓
+            for c in cnts:
+            # rect = cv2.minAreaRect(c)     # 绘制每个轮廓的最小外接矩形的方法
+            # box = cv2.boxPoints(rect)            # 获取矩形的四个顶点坐标
+                peri = cv2.arcLength(c, True)
+                approx = cv2.approxPolyDP(c, 0.045 * peri, True)
+
+                CornerNum = len(approx)     # 角的数量
+                if CornerNum == 3:
+                    target_recognize = 'Triangle'
+                elif  CornerNum == 4:
+                    if len(approx) == 4 and cv2.isContourConvex(approx):
+                        target_recognize = 'Null'
+                        approx = approx.reshape(-1, 2)
+                        max_cos = np.max([self.angle_cos(approx[i], approx[(i+1) % 4], approx[(i+2) % 4]) for i in range(4)])
+                        # 只检测矩形（cos90° = 0）
+                        if 0 <= max_cos <= 0.3:
+                            target_recognize = 'Square'
+                        else:
+                            break
+                elif CornerNum > 4:
+                    target_recognize = 'Circle'
+                else:
+                    target_recognize = 'NULL'
+
+                if target_recognize == target_shape:   # 在天上识别到的和目标相同时返回目标坐标
+                    cv2.drawContours(self.image, [c], -1, (0, 255, 0), 2)
+                    M = cv2.moments(c)
+                    if M['m00'] != 0.0:
+                        x = int(M['m10']/M['m00'])
+                        y = int(M['m01']/M['m00'])
+                        r_cnts.append((x, y))
+
+            if len(r_cnts) == 1:
+                self.target_x = int(x)
+                self.target_y = int(y)
+
+            elif len(r_cnts) == 2:
+                x1 = r_cnts[0][0]
+                y1 = r_cnts[0][1]
+                x2 = r_cnts[1][0]
+                y2 = r_cnts[1][1]
+                
+                # 根据所求更改要的坐标
+                if ((x1 - 230) ** 2 + (y1 - 240) ** 2) ** 0.5 > ((x2 - 230) ** 2 + (y2 - 240) ** 2) ** 0.5:
+                    self.target_x = x2
+                    self.target_y = y2
+                else:
+                    self.target_x = x1
+                    self.target_y = y1
+
+            logger.info('{}, {}'.format(int(self.target_x), int(self.target_y)))
+
+        if show:
+            cv2.imshow('detect_shape', self.image)
+            cv2.waitKey(1)
+        

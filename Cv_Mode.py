@@ -18,14 +18,15 @@ if __name__ == '__main__':
     cap.set(3, size[0])
     cap.set(4, size[1])
 
-    mode = 1
+    mode = 4
 
     logger.info('System Starting')
     while True:
         ret, image = cap.read()
         detection = Detections(image)
         if ret:
-            mode = self_serial.uart_read_mode(mode)
+            # 获取飞控指令
+            # mode = self_serial.uart_read_mode(mode)
 
             #发送上线消息
             if mode == 0:
@@ -40,7 +41,11 @@ if __name__ == '__main__':
             elif mode == 2:
                 detection.detect_qrcode(show = 0)
 
-            # elif mode == 3:
+            elif mode == 3:
+                detection.detect_character(character = 'A', show = 1)
+
+            elif mode == 4:
+                detection.detect_shape(mode = 'get location', specify_color = 'red', target_shape = 'Circle', show = 1)
 
                 
             
