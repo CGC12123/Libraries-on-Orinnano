@@ -1,5 +1,5 @@
 from communite_module.Communications import SelfSerial
-from Detections import Detections
+from detection_module.Detections import Detections
 from utils.SplitInt import get_high_low_data
 
 from loguru import logger
