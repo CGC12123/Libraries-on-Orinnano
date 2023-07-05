@@ -253,7 +253,7 @@ class Detections():
             cv2.waitKey(1)
 
     # 深度学习模型识别
-    def detect_obj_yolo(self, detect_target : str = None, model = None, show = 0):
+    def detect_obj_yolo(self, detect_target: str = None, model = None, show = 0):
         if model is not None:
             image = self.image
             results = model(image)
