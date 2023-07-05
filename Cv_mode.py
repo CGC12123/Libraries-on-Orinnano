@@ -1,11 +1,11 @@
 from loguru import logger
 import cv2
 import os
+import torch
 
 from communite_module.Communications import SelfSerial
 from detection_module.Detections import Detections
 from tools.SplitInt import get_high_low_data
-from yolo_load import yolo_load
 
 
 if __name__ == '__main__':
@@ -21,8 +21,10 @@ if __name__ == '__main__':
 
     mode = 0
 
-    model = yolo_load('/home/c/Library/Cv_for_Orinnano/detection_module/',
-                    '/home/c/Library/Cv_for_Orinnano/detection_module/models/yolov5n.pt') 
+    # path2为目标模型文件
+    path1 = '/home/c/Library/Cv_for_Orinnano/detection_module'
+    path2 = '/home/c/Library/Cv_for_Orinnano/detection_module/models/yolov5n.pt'
+    model = torch.hub.load(path1, 'custom', path2, source='local', device = 0)
 
     logger.info('System Starting')
     while True:
