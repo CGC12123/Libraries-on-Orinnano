@@ -4,7 +4,7 @@ import os
 
 from communite_module.Communications import SelfSerial
 from detection_module.Detections import Detections
-from utils.SplitInt import get_high_low_data
+from tools.SplitInt import get_high_low_data
 
 if __name__ == '__main__':
     # cv与飞控通信口
@@ -26,7 +26,7 @@ if __name__ == '__main__':
         if ret:
             # 获取飞控指令
             mode = self_serial.uart_read_mode(mode)
-
+            mode = 5
             #发送上线消息
             if mode == 0:
                 self_serial.uart_send_msg(0, (1, ))
@@ -49,6 +49,9 @@ if __name__ == '__main__':
             elif mode == 4:
                 detection.detect_shape(mode = 'get location', specify_color = 'red', target_shape = 'Circle', show = 1)
 
+            # yolo识别
+            elif mode == 5:
+                detection.detect_obj_yolo(show = 1)
                 
             
     cap.release()

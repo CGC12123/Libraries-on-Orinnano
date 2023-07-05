@@ -3,6 +3,10 @@ from loguru import logger
 import numpy as np
 from pyzbar import pyzbar
 import pytesseract
+import torch
+import sys 
+sys.path.append("..") 
+from yolo_load import yolo_load
 
 class Detections():
     def __init__(self, image):
@@ -25,7 +29,8 @@ class Detections():
         # 形状识别识别到的形状
         self.shape = ' '
         # 目标识别onnx文件
-        self.onnx_model = './model/obj.onnx'
+        self.model = yolo_load('/home/c/Library/Cv_for_Orinnano/detection_module/',
+                               '/home/c/Library/Cv_for_Orinnano/detection_module/models/yolov5n.pt') 
 
     # 找寻最大色块
     def find_biggest_color(self, color, show: bool = 1):
@@ -137,7 +142,7 @@ class Detections():
         return abs(np.dot(d1, d2) / np.sqrt(np.dot(d1, d1) * np.dot(d2, d2) ) )
 
     # 识别形状
-    def detect_shape(self, mode: str = ' ', specify_color: str = ' ', target_shape = ' ', show: bool = 1):
+    def detect_shape(self, mode: str = None, specify_color: str = None, target_shape = ' ', show: bool = 1):
         '''
         mode:
             get shape: 寻找最大的那个形状
@@ -156,7 +161,7 @@ class Detections():
         kernel = np.ones((5,5),np.uint8)  # 卷积核
         mask = cv2.erode(imgHSV, kernel, iterations=2)
         mask = cv2.dilate(mask, kernel, iterations=1)
-        if specify_color is not ' ':
+        if specify_color is not None:
             low = self.color_dist[specify_color]['lower']
             high = self.color_dist[specify_color]['high']
             mask = cv2.inRange(mask, low, high) # 筛选对应颜色
@@ -251,27 +256,13 @@ class Detections():
             cv2.imshow('detect_shape', self.image)
             cv2.waitKey(1)
 
-    def detect_obj_yolo(self, detect_target = ''):
-        '''
-        classes = ("apple", "clock", "banana","cat ","bird ")
-        '''
+    # 深度学习模型识别
+    def detect_obj_yolo(self, detect_target = '',show = 0):
         img = self.image
-        net = cv2.dnn.readNetFromONNX(self.onnx_model)
-        blob = cv2.dnn.blobFromImage(img, 1 / 255.0, (640, 480), [0, 0, 0], swapRB=True, crop=False)
-        net.setInput(blob)
-        output = net.forward(net.getUnconnectedOutLayersNames())[0]
-        # 解析输出
-        for detection in output[0, 0, :, :]:
-            confidence = detection[2]
-            if confidence > 0.5:
-                classId = detection[1]
-                x1 = int(detection[3] * img.shape[1])
-                y1 = int(detection[4] * img.shape[0])
-                x2 = int(detection[5] * img.shape[1])
-                y2 = int(detection[6] * img.shape[0])
-                cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            
+        results = self.model(img)
+        image = results.render()[0]
+
+        if show:
         # 显示结果
-        cv2.imshow("Output", img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+            cv2.imshow("detect_obj_yolo", image)
+            cv2.waitKey(1)
