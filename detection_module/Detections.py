@@ -146,10 +146,10 @@ class Detections():
         
         special_color:
             指定要识别的物体的颜色
+
         taeget_shape:
             在模式get location中所需要检测的物体形状
                 Triangle / Square / Circle
-
         '''
         image_gaussian = cv2.GaussianBlur(self.image, (5, 5), 0)     # 高斯滤波
         imgHSV = cv2.cvtColor(image_gaussian, cv2.COLOR_BGR2HSV) # 转换色彩空间
@@ -257,11 +257,13 @@ class Detections():
         if model is not None:
             image = self.image
             results = model(image)
+            # 将结果转为json数据
             json_data = results.pandas().xyxy[0].to_json(orient="records")
             # 解析 JSON 数据
             try:
                 data = json.loads(json_data)
                 for d in data:
+                    # 匹配目标
                     if d['name'] == detect_target:
                         self.target_x = int((d['xmin'] + d['xmax']) / 2)
                         self.target_y = int((d['ymin'] + d['ymax']) / 2)

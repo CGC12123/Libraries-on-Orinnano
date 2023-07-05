@@ -21,6 +21,7 @@ if __name__ == '__main__':
 
     mode = 0
 
+    # 加载模型
     # path2为目标模型文件
     path1 = '/home/c/Library/Cv_for_Orinnano/detection_module'
     path2 = '/home/c/Library/Cv_for_Orinnano/detection_module/models/yolov5n.pt'
