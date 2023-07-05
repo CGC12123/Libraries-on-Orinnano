@@ -5,7 +5,7 @@ from pyzbar import pyzbar
 import pytesseract
 import torch
 import sys 
-sys.path.append("..") 
+import json
 
 class Detections():
     def __init__(self, image):
@@ -253,13 +253,27 @@ class Detections():
             cv2.waitKey(1)
 
     # 深度学习模型识别
-    def detect_obj_yolo(self, detect_target = '', model = None, show = 0):
+    def detect_obj_yolo(self, detect_target : str = None, model = None, show = 0):
         if model is not None:
-            img = self.image
-            results = model(img)
-            image = results.render()[0]
+            image = self.image
+            results = model(image)
+            json_data = results.pandas().xyxy[0].to_json(orient="records")
+            # 解析 JSON 数据
+            try:
+                data = json.loads(json_data)
+                for d in data:
+                    if d['name'] == detect_target:
+                        self.target_x = int((d['xmin'] + d['xmax']) / 2)
+                        self.target_y = int((d['ymin'] + d['ymax']) / 2)
+                        image = results.render()[0]
+                    else:
+                        self.target_x = 0
+                        self.target_y = 0
+            except:
+                self.target_x = 0
+                self.target_y = 0
+            logger.info('{}, {}'.format(int(self.target_x), int(self.target_y)))
 
         if show:
-        # 显示结果
             cv2.imshow("detect_obj_yolo", image)
             cv2.waitKey(1)

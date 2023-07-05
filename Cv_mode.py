@@ -58,8 +58,7 @@ if __name__ == '__main__':
 
             # yolo识别
             elif mode == 5:
-                detection.detect_obj_yolo( model = model, show = 1)
-                
+                detection.detect_obj_yolo(model = model, detect_target = 'person', show = 1)
             
     cap.release()
     cv2.destroyAllWindows()
