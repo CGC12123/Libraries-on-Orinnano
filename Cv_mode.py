@@ -5,6 +5,8 @@ import os
 from communite_module.Communications import SelfSerial
 from detection_module.Detections import Detections
 from tools.SplitInt import get_high_low_data
+from yolo_load import yolo_load
+
 
 if __name__ == '__main__':
     # cv与飞控通信口
@@ -18,6 +20,9 @@ if __name__ == '__main__':
     cap.set(4, size[1])
 
     mode = 0
+
+    model = yolo_load('/home/c/Library/Cv_for_Orinnano/detection_module/',
+                    '/home/c/Library/Cv_for_Orinnano/detection_module/models/yolov5n.pt') 
 
     logger.info('System Starting')
     while True:
@@ -51,7 +56,7 @@ if __name__ == '__main__':
 
             # yolo识别
             elif mode == 5:
-                detection.detect_obj_yolo(show = 1)
+                detection.detect_obj_yolo( model = model, show = 1)
                 
             
     cap.release()

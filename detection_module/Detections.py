@@ -6,7 +6,6 @@ import pytesseract
 import torch
 import sys 
 sys.path.append("..") 
-from yolo_load import yolo_load
 
 class Detections():
     def __init__(self, image):
@@ -28,9 +27,6 @@ class Detections():
         self.character_message: str = ' '
         # 形状识别识别到的形状
         self.shape = ' '
-        # 目标识别onnx文件
-        self.model = yolo_load('/home/c/Library/Cv_for_Orinnano/detection_module/',
-                               '/home/c/Library/Cv_for_Orinnano/detection_module/models/yolov5n.pt') 
 
     # 找寻最大色块
     def find_biggest_color(self, color, show: bool = 1):
@@ -257,10 +253,11 @@ class Detections():
             cv2.waitKey(1)
 
     # 深度学习模型识别
-    def detect_obj_yolo(self, detect_target = '',show = 0):
-        img = self.image
-        results = self.model(img)
-        image = results.render()[0]
+    def detect_obj_yolo(self, detect_target = '', model = None, show = 0):
+        if model is not None:
+            img = self.image
+            results = model(img)
+            image = results.render()[0]
 
         if show:
         # 显示结果
