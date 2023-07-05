@@ -24,6 +24,8 @@ class Detections():
         self.character_message: str = ' '
         # 形状识别识别到的形状
         self.shape = ' '
+        # 目标识别onnx文件
+        self.onnx_model = './model/obj.onnx'
 
     # 找寻最大色块
     def find_biggest_color(self, color, show: bool = 1):
@@ -248,4 +250,28 @@ class Detections():
         if show:
             cv2.imshow('detect_shape', self.image)
             cv2.waitKey(1)
-        
+
+    def detect_obj_yolo(self, detect_target = ''):
+        '''
+        classes = ("apple", "clock", "banana","cat ","bird ")
+        '''
+        img = self.image
+        net = cv2.dnn.readNetFromONNX(self.onnx_model)
+        blob = cv2.dnn.blobFromImage(img, 1 / 255.0, (640, 480), [0, 0, 0], swapRB=True, crop=False)
+        net.setInput(blob)
+        output = net.forward(net.getUnconnectedOutLayersNames())[0]
+        # 解析输出
+        for detection in output[0, 0, :, :]:
+            confidence = detection[2]
+            if confidence > 0.5:
+                classId = detection[1]
+                x1 = int(detection[3] * img.shape[1])
+                y1 = int(detection[4] * img.shape[0])
+                x2 = int(detection[5] * img.shape[1])
+                y2 = int(detection[6] * img.shape[0])
+                cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            
+        # 显示结果
+        cv2.imshow("Output", img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
