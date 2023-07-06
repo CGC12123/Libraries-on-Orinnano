@@ -2,6 +2,7 @@ from loguru import logger
 import cv2
 import os
 import torch
+import ultralytics
 
 from communite_module.Communications import SelfSerial
 from detection_module.Detections import Detections
@@ -22,10 +23,13 @@ if __name__ == '__main__':
     mode = 0
 
     # 加载模型
-    # path2为目标模型文件
+    # path1为yolov5配置文件路径
+    # path2为yolov5模型文件
     path1 = '/home/c/Library/Cv_for_Orinnano/detection_module'
     path2 = '/home/c/Library/Cv_for_Orinnano/detection_module/models/yolov5n.pt'
-    model = torch.hub.load(path1, 'custom', path2, source='local', device = 0)
+    # model_v5 = torch.hub.load(path1, 'custom', path2, source='local', device = 0) # 不用的话注释掉提高启动效率
+    # yolov8
+    model_v8 = ultralytics.YOLO("/home/c/Library/Cv_for_Orinnano/detection_module/models/yolov8n.pt")
 
     logger.info('System Starting')
     while True:
@@ -34,7 +38,7 @@ if __name__ == '__main__':
         if ret:
             # 获取飞控指令
             mode = self_serial.uart_read_mode(mode)
-            mode = 5
+            mode = 6
             #发送上线消息
             if mode == 0:
                 self_serial.uart_send_msg(0, (1, ))
@@ -57,9 +61,12 @@ if __name__ == '__main__':
             elif mode == 4:
                 detection.detect_shape(mode = 'get location', specify_color = 'red', target_shape = 'Circle', show = 1)
 
-            # yolo识别
+            # yolov5识别
             elif mode == 5:
-                detection.detect_obj_yolo(model = model, detect_target = 'person', show = 1)
+                detection.detect_obj_yolov5(model = model_v5, detect_target = 'person', show = 1)
             
+            # yolov8识别
+            elif mode == 6:
+                detection.detect_obj_yolov8(model = model_v8, detect_target = 'person', show = 1)
     cap.release()
     cv2.destroyAllWindows()

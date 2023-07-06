@@ -252,8 +252,8 @@ class Detections():
             cv2.imshow('detect_shape', self.image)
             cv2.waitKey(1)
 
-    # 深度学习模型识别
-    def detect_obj_yolo(self, detect_target: str = None, model = None, show = 0):
+    # YOLOV5识别
+    def detect_obj_yolov5(self, detect_target: str = None, model = None, show = 0):
         if model is not None:
             image = self.image
             results = model(image)
@@ -277,5 +277,26 @@ class Detections():
             logger.info('{}, {}'.format(int(self.target_x), int(self.target_y)))
 
         if show:
-            cv2.imshow("detect_obj_yolo", image)
+            cv2.imshow("detect_obj_yolov5", image)
+            cv2.waitKey(1)
+
+    def detect_obj_yolov8(self, detect_target: str = None, model = None, show = 0):
+        if model is not None:
+            image = self.image
+            results = model(image)
+            try:
+                boxes = results[0].boxes
+                tensor = (boxes[0].xyxy)[0]
+                values = tensor.cpu().numpy()
+                self.target_x = int((values[0] + values[2]) / 2)
+                self.target_y = int((values[1] + values[3]) / 2)
+            except:
+                self.target_x = 0
+                self.target_y = 0
+            image = results[0].plot()
+
+            logger.info('{}, {}'.format(int(self.target_x), int(self.target_y)))
+            
+        if show:
+            cv2.imshow("detect_obj_yolov8", image)
             cv2.waitKey(1)
