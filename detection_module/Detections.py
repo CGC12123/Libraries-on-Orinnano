@@ -61,11 +61,9 @@ class Detections():
 
             self.target_x = mid_point_x
             self.target_y = mid_point_y
-            #print("coordinate is (%f, %f)" %(target_x, target_y))
             self.flag = 1
             
         except :
-            #print("get failed")
             self.target_x = 0
             self.target_y = 0
             self.flag = 0
@@ -114,7 +112,6 @@ class Detections():
         boxes = pytesseract.image_to_boxes(img_gray)
         if mode == 'get position':
             for box in boxes.splitlines():
-                # print(box)
                 box = box.split(' ')
                 if box[0] == character:
                     x, y, w, h = int(box[1]), int(box[2]), int(box[3]), int(box[4])
@@ -179,16 +176,15 @@ class Detections():
                 box = cv2.boxPoints(rect)
                 x, y, w, h = cv2.boundingRect(approx)
                 if CornerNum ==3:
-                    print("Triangle")
                     self.shape = 'Triangle'
+                    logger.info('{}'.format(self.shape))
                 elif 4>=CornerNum and CornerNum <= 7:
-                    print("Square")
                     self.shape = 'Square'
+                    logger.info('{}'.format(self.shape))
                 elif CornerNum>7:
-                    print("Circle")
                     self.shape = 'Circle'
+                    logger.info('{}'.format(self.shape))
                 else:
-                    print("未识别到")
                     self.shape = 'NULL'
             except:
                 self.shape = 'NULL'
