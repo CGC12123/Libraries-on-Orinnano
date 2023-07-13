@@ -1,5 +1,5 @@
 from loguru import logger
-from utils.SplitInt import get_gigh_low_data
+from tools.SplitInt import get_gigh_low_data
 
 
 def get_keyboard_input():
