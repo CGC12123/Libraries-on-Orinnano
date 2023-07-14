@@ -36,6 +36,7 @@ class SelfSerial():
     #串口读取数据处理函数
     def data_processing(self, data):
         if(self.state == 0):
+            self.uart_buf = []
             if(data == "0f"):
                 self.state = 1
                 self.uart_buf.append(data)
