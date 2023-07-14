@@ -11,7 +11,7 @@ class Detections():
     def __init__(self, image):
         # 颜色字典
         self.color_dist = { 'blue': {'lower':np.array([98, 112, 75]), 'high':np.array([179, 255, 255])},
-                            'red': {'lower':np.array([0, 113, 174]), 'high':np.array([13,255,255])}}
+                            'red': {'lower':np.array([115, 101, 0]), 'high':np.array([179,255,255])}}
         # 画面
         self.image = image
         # 检测到目标的标志位

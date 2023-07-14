@@ -10,7 +10,7 @@ from torch import cartesian_prod
 
 Width = 640*0.5
 Height = 480*0.5
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 cap.set(3, Width)
 cap.set(4, Height)
 cap.set(10,150)
