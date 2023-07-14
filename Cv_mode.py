@@ -7,6 +7,7 @@ import ultralytics
 from communite_module.Communications import SelfSerial
 from detection_module.Detections import Detections
 from tools.SplitInt import get_high_low_data
+from tools.GetKeyboardInput import transmit_keyboard_msg
 
 
 if __name__ == '__main__':
@@ -38,37 +39,48 @@ if __name__ == '__main__':
         if ret:
             # 获取飞控指令
             mode = self_serial.uart_read_mode(mode)
-            mode = 4
+            mode = 0
             #发送上线消息
             if mode == 0:
                 self_serial.uart_send_msg(0, (1, ))
 
-            # 追色块
+            # 键盘输入
             elif mode == 1:
+                msg = transmit_keyboard_msg()
+                if msg:
+                    self_serial.uart_send_msg(1, msg)
+                mode = 99
+
+            # 追色块
+            elif mode == 2:
                 detection.find_biggest_color('red', show = 1)
                 msg = get_high_low_data(int(detection.target_x)) + get_high_low_data(int(detection.target_y))
                 self_serial.uart_send_msg(32, msg) # 理应发出20 32为十六进制的20
             
             # 识别二维码或条形码
-            elif mode == 2:
+            elif mode == 3:
                 detection.detect_qrcode(show = 0)
 
             # 字符识别
-            elif mode == 3:
+            elif mode == 4:
                 detection.detect_character(character = 'A', show = 1)
 
             # 形状识别
-            elif mode == 4:
+            elif mode == 5:
                 detection.detect_shape(mode = 'get shape', specify_color = 'red', target_shape = 'Circle', show = 1)
 
             # yolov5识别
-            elif mode == 5:
+            elif mode == 6:
                 # detection.detect_obj_yolov5(model = model_v5, detect_target = 'person', show = 1)
                 pass
             
             # yolov8识别
-            elif mode == 6:
+            elif mode == 7:
                 # detection.detect_obj_yolov8(model = model_v8, detect_target = 'person', show = 1)
                 pass
+
+            elif mode == 99:
+                pass
+            
     cap.release()
     cv2.destroyAllWindows()
