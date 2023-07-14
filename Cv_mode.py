@@ -39,7 +39,7 @@ if __name__ == '__main__':
         if ret:
             # 获取飞控指令
             mode = self_serial.uart_read_mode(mode)
-            mode = 0
+            # mode = 0
             #发送上线消息
             if mode == 0:
                 self_serial.uart_send_msg(0, (1, ))
@@ -48,14 +48,14 @@ if __name__ == '__main__':
             elif mode == 1:
                 msg = transmit_keyboard_msg()
                 if msg:
-                    self_serial.uart_send_msg(1, msg)
+                    self_serial.uart_send_msg(0x01, msg)
                 mode = 99
 
             # 追色块
             elif mode == 2:
                 detection.find_biggest_color('red', show = 1)
                 msg = get_high_low_data(int(detection.target_x)) + get_high_low_data(int(detection.target_y))
-                self_serial.uart_send_msg(32, msg) # 理应发出20 32为十六进制的20
+                self_serial.uart_send_msg(0x02, msg) 
             
             # 识别二维码或条形码
             elif mode == 3:
