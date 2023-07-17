@@ -373,7 +373,7 @@ class Detections():
             else:
                 self.target_x = self.target_y = 0
 
-            logger.info('{}, {}'.format(int(self.target_x), int(self.target_y)))
+        logger.info('{}, {}'.format(int(self.target_x), int(self.target_y)))
 
         # 显示图像
         if show:
