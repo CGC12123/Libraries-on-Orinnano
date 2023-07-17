@@ -39,7 +39,7 @@ if __name__ == '__main__':
         if ret:
             # 获取飞控指令
             mode = self_serial.uart_read_mode(mode)
-            # mode = 0
+            mode = 8
             #发送上线消息
             if mode == 0:
                 self_serial.uart_send_msg(0, (1, ))
@@ -78,6 +78,9 @@ if __name__ == '__main__':
             elif mode == 7:
                 # detection.detect_obj_yolov8(model = model_v8, detect_target = 'person', show = 1)
                 pass
+                
+            elif mode == 8:
+                detection.follow_line(show = 1)
 
             elif mode == 99:
                 pass

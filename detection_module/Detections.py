@@ -11,7 +11,8 @@ class Detections():
     def __init__(self, image):
         # 颜色字典
         self.color_dist = { 'blue': {'lower':np.array([98, 112, 75]), 'high':np.array([179, 255, 255])},
-                            'red': {'lower':np.array([115, 101, 0]), 'high':np.array([179,255,255])}}
+                            'red': {'lower':np.array([115, 101, 0]), 'high':np.array([179,255,255])},
+                            'black': {'lower':np.array([0, 0, 0]), 'high':np.array([180,255,50])}}
         # 画面
         self.image = image
         # 检测到目标的标志位
@@ -295,4 +296,86 @@ class Detections():
             
         if show:
             cv2.imshow("detect_obj_yolov8", image)
+            cv2.waitKey(1)
+
+    def follow_line(self, show = 0):
+        low = self.color_dist['black']['lower'] # 阈值设置
+        high = self.color_dist['black']['high']
+        img_fg = [None] * 9
+        point = []
+        image = self.image
+        
+        # 画面编号
+        # 0  1  2
+        # 3  4  5
+        # 6  7  8
+
+        # 分割图像
+        img_fg[0] = image[0:160, 0:213]     # 左上
+        img_fg[1] = image[0:160, 213:426]   # 中上
+        img_fg[2] = image[0:160, 426:640]   # 右上
+        img_fg[3] = image[160:320, 0:213]   # 左中
+        img_fg[4] = image[160:320, 213:426] # 正中
+        img_fg[5] = image[160:320, 426:640] # 右中
+        img_fg[6] = image[320:480, 0:213]   # 左下
+        img_fg[7] = image[320:480, 213:426] # 中下
+        img_fg[8] = image[320:480, 426:640] # 右下
+
+        # 画线区分画面
+        cv2.line(image, (0, 160), (640, 160), (0, 200, 0), 1)
+        cv2.line(image, (0, 320), (640, 320), (0, 200, 0), 1)
+        cv2.line(image, (213, 0), (213, 480), (0, 200, 0), 1)
+        cv2.line(image, (426, 0), (426, 480), (0, 200, 0), 1)
+
+        for i, frame in enumerate(img_fg):
+            hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV) # 转换为HSV颜色空间
+            mask = cv2.inRange(hsv, low, high) # 根据颜色范围进行二值化
+            kernel = np.ones((5, 5), np.uint8) # 进行形态学操作，增加车道线宽度
+            mask = cv2.dilate(mask, kernel)
+            contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) # 查找轮廓
+            # 选择最大的车道线
+            max_area = 0
+            max_contour = None
+            for contour in contours:
+                area = cv2.contourArea(contour)
+                if area > max_area:
+                    max_area = area
+                    max_contour = contour
+            if max_contour is not None:
+                moments = cv2.moments(max_contour)
+                cx = int(moments['m10'] / moments['m00'])
+                cy = int(moments['m01'] / moments['m00'])
+                point.append([1, cx, cy])
+            else:
+                point.append([0, 0, 0])
+            i += 1
+        if any(item[0] == 1 for item in point): # 有目标
+            i_list = [item[0] for item in point]
+            # 仿照红外循迹
+            # 画面编号
+            #   x->
+            #         0 +213 +426
+            # y   0   0   1    2
+            # | +160  3   4    5
+            #   +320  6   7    8
+            if all(point[i][0] == 1 for i in [1, 4, 7]):
+                cv2.circle(image, (point[1][1] + 213, point[1][2]), 5, (0, 0, 255), -1)
+                self.target_x, self.target_y = point[1][1] + 213, point[1][2]
+            elif all(point[i][0] == 1 for i in [4, 5, 7]):
+                cv2.circle(image, (point[5][1] + 426, point[5][2] + 160), 5, (0, 0, 255), -1)
+                self.target_x, self.target_y = point[5][1] + 426, point[5][2] + 160
+            elif all(point[i][0] == 1 for i in [3, 4, 5]):
+                cv2.circle(image, (point[5][1] + 426, point[5][2] + 160), 5, (0, 0, 255), -1)
+                self.target_x, self.target_y = point[5][1] + 426, point[5][2] + 160
+            elif all(point[i][0] == 1 for i in [4, 7]):
+                cv2.circle(image, (point[4][1] + 213, point[4][2] + 160), 5, (0, 0, 255), -1)
+                self.target_x, self.target_y = point[4][1] + 213, point[4][2] + 160
+            else:
+                self.target_x = self.target_y = 0
+
+            logger.info('{}, {}'.format(int(self.target_x), int(self.target_y)))
+
+        # 显示图像
+        if show:
+            cv2.imshow('Lane Detection', image)
             cv2.waitKey(1)
