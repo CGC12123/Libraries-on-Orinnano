@@ -6,6 +6,7 @@ import pytesseract
 import torch
 import sys 
 import json
+import math
 
 class Detections():
     def __init__(self, image):
@@ -378,4 +379,51 @@ class Detections():
         # 显示图像
         if show:
             cv2.imshow('Lane Detection', image)
+            cv2.waitKey(1)
+
+    def detect_rod(self, color, show = 0):
+        low = self.color_dist[color]['lower'] # 阈值设置
+        high = self.color_dist[color]['high']
+
+        image_gaussian = cv2.GaussianBlur(self.image, (5, 5), 0)     # 高斯滤波
+        imgHSV = cv2.cvtColor(image_gaussian, cv2.COLOR_BGR2HSV) # 转换色彩空间
+
+        kernel = np.ones((5,5),np.uint8)  # 卷积核
+        mask = cv2.erode(imgHSV, kernel, iterations=2)
+        mask = cv2.dilate(mask, kernel, iterations=1)
+        mask = cv2.inRange(mask, low, high)
+        cnts = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2] # 检测外轮廓
+        try:
+            max_contour = max(cnts, key=cv2.contourArea)
+            rect = cv2.minAreaRect(max_contour)
+            box = cv2.boxPoints(rect)
+            cv2.drawContours(self.image, [np.int0(box)], -1, (0, 255, 255), 2)
+            left_point_x = np.min(box[:, 0])
+            right_point_x = np.max(box[:, 0])
+            top_point_y = np.min(box[:, 1])
+            bottom_point_y = np.max(box[:, 1])
+            
+            mid_point_x = (left_point_x + right_point_x)/2
+            mid_point_y = (top_point_y + bottom_point_y)/2
+            
+            mid_point_x = round(mid_point_x, 2) # 保留两位小数
+            mid_point_y = round(mid_point_y, 2)
+
+            self.distance = (355 * 2.8/math.fabs(left_point_x - right_point_x))
+
+            self.target_x = mid_point_x
+            self.target_y = mid_point_y
+            self.flag = 1
+            
+        except :
+            self.target_x = 0
+            self.target_y = 0
+            self.flag = 0
+            self.distance = 0
+
+        logger.info('{}, {}, distance:{}'.format(int(self.target_x), int(self.target_y)), int(self.distance))
+
+        if show:
+            # image = cv2.flip(image, 1) # 镜像操作 使用笔记本摄像头可用
+            cv2.imshow('detect_rod', self.image)
             cv2.waitKey(1)

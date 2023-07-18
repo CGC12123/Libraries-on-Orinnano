@@ -39,7 +39,7 @@ if __name__ == '__main__':
         if ret:
             # 获取飞控指令
             mode = self_serial.uart_read_mode(mode)
-            mode = 8
+            mode = 9
             #发送上线消息
             if mode == 0:
                 self_serial.uart_send_msg(0, (1, ))
@@ -81,6 +81,9 @@ if __name__ == '__main__':
                 
             elif mode == 8:
                 detection.follow_line(show = 1)
+
+            elif mode == 9:
+                detection.detect_rod(coloe = 'red', show = 1)
 
             elif mode == 99:
                 pass
