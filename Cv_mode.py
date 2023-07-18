@@ -83,7 +83,7 @@ if __name__ == '__main__':
                 detection.follow_line(show = 1)
 
             elif mode == 9:
-                detection.detect_rod(coloe = 'red', show = 1)
+                detection.detect_rod(color = 'red', show = 1)
 
             elif mode == 99:
                 pass

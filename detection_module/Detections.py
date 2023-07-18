@@ -421,7 +421,7 @@ class Detections():
             self.flag = 0
             self.distance = 0
 
-        logger.info('{}, {}, distance:{}'.format(int(self.target_x), int(self.target_y)), int(self.distance))
+        logger.info('{}, {}, distance:{}'.format(int(self.target_x), int(self.target_y), int(self.distance)))
 
         if show:
             # image = cv2.flip(image, 1) # 镜像操作 使用笔记本摄像头可用
