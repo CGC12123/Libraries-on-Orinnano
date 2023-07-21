@@ -262,11 +262,11 @@ class Detections():
                 data = json.loads(json_data)
                 for d in data:
                     # 匹配目标
-                    # if d['name'] == detect_target:
-                    if 1:
+                    if d.get('name') == detect_target and all(key in d for key in ('xmin', 'xmax', 'ymin', 'ymax')):
                         self.target_x = int((d['xmin'] + d['xmax']) / 2)
                         self.target_y = int((d['ymin'] + d['ymax']) / 2)
                         image = results.render()[0]
+                        break
                     else:
                         self.target_x = 0
                         self.target_y = 0
