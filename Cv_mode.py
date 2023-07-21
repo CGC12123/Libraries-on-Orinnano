@@ -28,7 +28,9 @@ if __name__ == '__main__':
     # path2为yolov5模型文件
     path1 = '/home/c/Library/Cv_for_Orinnano/detection_module'
     path2 = '/home/c/Library/Cv_for_Orinnano/detection_module/models/yolov5n.pt'
-    # model_v5 = torch.hub.load(path1, 'custom', path2, source='local', device = 0) # 不用的话注释掉提高启动效率
+    path2_2 = '/home/c/Library/Cv_for_Orinnano/detection_module/models/yolov5s.engine'
+    # model_v5_pt = torch.hub.load(path1, 'custom', path2, source='local', device = 0) # 不用的话注释掉提高启动效率
+    model_v5_engine = torch.hub.load(path1, 'custom', path2_2, source='local', device = 0) # 不用的话注释掉提高启动效率
     # yolov8
     # model_v8 = ultralytics.YOLO("/home/c/Library/Cv_for_Orinnano/detection_module/models/yolov8n.pt") # 不用的话注释掉提高启动效率
 
@@ -39,7 +41,7 @@ if __name__ == '__main__':
         if ret:
             # 获取飞控指令
             mode = self_serial.uart_read_mode(mode)
-            mode = 9
+            mode = 6
             #发送上线消息
             if mode == 0:
                 self_serial.uart_send_msg(0, (1, ))
@@ -71,7 +73,7 @@ if __name__ == '__main__':
 
             # yolov5识别
             elif mode == 6:
-                # detection.detect_obj_yolov5(model = model_v5, detect_target = 'person', show = 1)
+                detection.detect_obj_yolov5(model = model_v5_engine, detect_target = 'class0', show = 1)
                 pass
             
             # yolov8识别
