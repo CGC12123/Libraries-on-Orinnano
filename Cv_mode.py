@@ -81,9 +81,11 @@ if __name__ == '__main__':
                 # detection.detect_obj_yolov8(model = model_v8, detect_target = 'person', show = 1)
                 pass
                 
+            # 巡线demo
             elif mode == 8:
                 detection.follow_line(show = 1)
 
+            # 杆识别
             elif mode == 9:
                 detection.detect_rod(color = 'red', show = 1)
 
