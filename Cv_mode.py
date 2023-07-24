@@ -28,7 +28,7 @@ if __name__ == '__main__':
     # path2为yolov5模型文件
     path1 = '/home/c/Library/Cv_for_Orinnano/detection_module'
     path2 = '/home/c/Library/Cv_for_Orinnano/detection_module/models/yolov5n.pt'
-    path2_2 = '/home/c/Library/Cv_for_Orinnano/detection_module/models/yolov5s.engine'
+    path2_2 = '/home/c/Library/Cv_for_Orinnano/detection_module/models/best.engine'
     # model_v5_pt = torch.hub.load(path1, 'custom', path2, source='local', device = 0) # 不用的话注释掉提高启动效率
     model_v5_engine = torch.hub.load(path1, 'custom', path2_2, source='local', device = 0) # 不用的话注释掉提高启动效率
     # yolov8
