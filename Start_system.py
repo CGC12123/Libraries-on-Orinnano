@@ -9,11 +9,22 @@ from tools.CvStart import Cv_Start
 import os
 import subprocess
 import time
+import datetime
+import logging
 
-time.sleep(10)
+# time.sleep(10)
+logging.basicConfig(filename='my_script.log', level=logging.DEBUG)
 
-# 开新终端并执行双目启动程序
-T265_Start()
+try:
+    # 开新终端并执行双目启动程序
+    T265_Start()
+    # 执行cv
+    Cv_Start()
+    now = datetime.datetime.now()
+    logging.info('[%s] Script completed successfully.', now.strftime('%Y-%m-%d %H:%M:%S'))
+    
+except Exception as e:
+    now = datetime.datetime.now()
+    logging.error('[%s] An error occurred: %s', now.strftime('%Y-%m-%d %H:%M:%S'), e, exc_info=True)
 
-# 执行cv
-Cv_Start()
+
