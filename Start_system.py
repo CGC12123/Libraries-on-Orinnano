@@ -13,7 +13,7 @@ import datetime
 import logging
 
 # time.sleep(10)
-logging.basicConfig(filename='my_script.log', level=logging.DEBUG)
+logging.basicConfig(filename='/home/c/Library/Cv_for_Orinnano/my_script.log', level=logging.DEBUG)
 
 try:
     time.sleep(10)
