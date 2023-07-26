@@ -50,7 +50,7 @@ if __name__ == '__main__':
                 mode = self_serial.uart_read_mode(mode)
                 #发送上线消息
                 if mode == 0:
-                    self_serial.uart_send_msg(0x99, (1, ))
+                    self_serial.uart_send_msg(0x29, (1, ))
 
                 # 键盘输入
                 elif mode == 1:
@@ -66,7 +66,7 @@ if __name__ == '__main__':
                     self_serial.uart_send_msg(0x02, msg) 
                 
                 # 识别二维码或条形码
-                elif mode == 3:
+                elif mode == 30:
                     detection.detect_qrcode(show = 0)
 
                 # 字符识别
@@ -78,8 +78,8 @@ if __name__ == '__main__':
                     detection.detect_shape(mode = 'get shape', specify_color = 'red', target_shape = 'Circle', show = 1)
 
                 # yolov5识别
-                elif mode == 6:
-                    detection.detect_obj_yolov5(model = model_v5_pt, detect_target = 'class0', show = 1)
+                elif mode == 3:
+                    detection.detect_obj_yolov5(model = model_v5_pt, detect_target = 'land1', show = 1)
                     pass
                 
                 # yolov8识别

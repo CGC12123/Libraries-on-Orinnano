@@ -16,6 +16,8 @@ import logging
 logging.basicConfig(filename='my_script.log', level=logging.DEBUG)
 
 try:
+    time.sleep(10)
+
     # 开新终端并执行双目启动程序
     T265_Start()
     # 执行cv
