@@ -10,6 +10,7 @@ from communite_module.Communications import SelfSerial
 from detection_module.Detections import Detections
 from tools.SplitInt import get_high_low_data
 from tools.GetKeyboardInput import transmit_keyboard_msg
+from tools.Gpio import GpioInit
 
 
 if __name__ == '__main__':
@@ -19,7 +20,7 @@ if __name__ == '__main__':
         self_serial = SelfSerial('/dev/ttyUSB1')
 
         # 日志
-        logging.basicConfig(filename='my_script.log', level=logging.DEBUG)
+        logging.basicConfig(filename='/home/c/Library/Cv_for_Orinnano/my_script.log', level=logging.DEBUG)
 
         # 实例化检测类
         cap = cv2.VideoCapture(0)
@@ -47,10 +48,9 @@ if __name__ == '__main__':
             if ret:
                 # 获取飞控指令
                 mode = self_serial.uart_read_mode(mode)
-                mode = 6
                 #发送上线消息
                 if mode == 0:
-                    self_serial.uart_send_msg(0, (1, ))
+                    self_serial.uart_send_msg(0x99, (1, ))
 
                 # 键盘输入
                 elif mode == 1:
