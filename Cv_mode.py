@@ -35,8 +35,10 @@ if __name__ == '__main__':
         # path2为yolov5模型文件
         path1 = '/home/c/Library/Cv_for_Orinnano/detection_module'
         path2 = '/home/c/Library/Cv_for_Orinnano/detection_module/models/yolov5n.pt'
-        path2_2 = '/home/c/Library/Cv_for_Orinnano/detection_module/models/best.pt'
-        model_v5_pt = torch.hub.load(path1, 'custom', path2_2, source='local', device = 0, force_reload = True) # 不用的话注释掉提高启动效率
+        path2_land = '/home/c/Library/Cv_for_Orinnano/detection_module/models/land.pt'
+        path2_num = '/home/c/Library/Cv_for_Orinnano/detection_module/models/land.pt'
+        model_land = torch.hub.load(path1, 'custom', path2_land, source='local', device = 0, force_reload = True) # 不用的话注释掉提高启动效率
+        model_num = torch.hub.load(path1, 'custom', path2_num, source='local', device = 0, force_reload = True) # 不用的话注释掉提高启动效率
         # model_v5_engine = torch.hub.load(path1, 'custom', path2_2, source='local', device = 0) # 不用的话注释掉提高启动效率
         # yolov8
         # model_v8 = ultralytics.YOLO("/home/c/Library/Cv_for_Orinnano/detection_module/models/yolov8n.pt") # 不用的话注释掉提高启动效率
@@ -79,7 +81,7 @@ if __name__ == '__main__':
 
                 # yolov5识别
                 elif mode == 3:
-                    detection.detect_obj_yolov5(model = model_v5_pt, detect_target = 'land1', show = 1)
+                    detection.detect_obj_yolov5(model = model_land, detect_target = 'land1', show = 1)
                     pass
                 
                 # yolov8识别
@@ -94,6 +96,10 @@ if __name__ == '__main__':
                 # 杆识别
                 elif mode == 9:
                     detection.detect_rod(color = 'red', show = 1)
+
+                # 识别数字
+                elif mode == 10:
+                    detection.detect_number(model = model_num, conf_thres = 0.5)
 
                 elif mode == 99:
                     pass

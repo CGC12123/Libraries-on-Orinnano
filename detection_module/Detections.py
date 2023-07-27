@@ -29,6 +29,9 @@ class Detections():
         self.character_message: str = ' '
         # 形状识别识别到的形状
         self.shape = ' '
+        # 数字识别识别到的数字
+        self.numebr = -1
+        self.numbers = []
 
     # 找寻最大色块
     def find_biggest_color(self, color, show: bool = 1):
@@ -431,3 +434,20 @@ class Detections():
             # image = cv2.flip(image, 1) # 镜像操作 使用笔记本摄像头可用
             cv2.imshow('detect_rod', image)
             cv2.waitKey(1)
+
+    def detect_number(self, model = None, conf_thres = 0.5):
+        if model is not None:
+            image = self.image
+            results = model(image)
+            # 将结果转为json数据
+            json_data = results.pandas().xyxy[0].to_json(orient="records")
+            # 解析 JSON 数据
+            try:
+                data = json.loads(json_data)
+                # 筛选出置信度高于阈值的目标
+                data = [d for d in data if 'confidence' in d and d['confidence'] >= conf_thres]
+                for d in data:
+                    self.numbers.append(d) # 将所有数字进行储存
+            except:
+                pass
+        logger.info('{}'.format(self.numbers))
