@@ -435,7 +435,7 @@ class Detections():
             cv2.imshow('detect_rod', image)
             cv2.waitKey(1)
 
-    def detect_number(self, model = None, conf_thres = 0.5):
+    def detect_identify(self, model = None, conf_thres = 0.5):
         if model is not None:
             image = self.image
             results = model(image)

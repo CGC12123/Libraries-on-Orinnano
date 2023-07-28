@@ -97,9 +97,9 @@ if __name__ == '__main__':
                 elif mode == 9:
                     detection.detect_rod(color = 'red', show = 1)
 
-                # 识别数字
+                # 识别目标并记录目标内容
                 elif mode == 10:
-                    detection.detect_number(model = model_num, conf_thres = 0.5)
+                    detection.detect_identify(model = model_num, conf_thres = 0.5)
 
                 elif mode == 99:
                     pass
