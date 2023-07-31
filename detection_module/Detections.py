@@ -447,7 +447,9 @@ class Detections():
                 # 筛选出置信度高于阈值的目标
                 data = [d for d in data if 'confidence' in d and d['confidence'] >= conf_thres]
                 for d in data:
-                    self.numbers.append(d) # 将所有数字进行储存
+                    self.numbers.append(d['name']) # 将所有数字进行储存
             except:
                 pass
-        logger.info('{}'.format(self.numbers))
+
+        if self.numbers is not None:
+            logger.info('{}'.format(self.numbers))
