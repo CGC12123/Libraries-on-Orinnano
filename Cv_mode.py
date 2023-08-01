@@ -50,7 +50,6 @@ if __name__ == '__main__':
             if ret:
                 # 获取飞控指令
                 mode = self_serial.uart_read_mode(mode)
-                mode = 10
                 #发送上线消息
                 if mode == 0:
                     self_serial.uart_send_msg(0x29, (1, ))
