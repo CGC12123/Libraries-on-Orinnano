@@ -69,7 +69,7 @@ if __name__ == '__main__':
                     self_serial.uart_send_msg(0x02, msg) 
                 
                 # 识别二维码或条形码
-                elif mode == 30:
+                elif mode == 3:
                     detection.detect_qrcode(show = 0)
 
                 # 字符识别
@@ -81,7 +81,7 @@ if __name__ == '__main__':
                     detection.detect_shape(mode = 'get shape', specify_color = 'red', target_shape = 'Circle', show = 1)
 
                 # yolov5识别
-                elif mode == 3:
+                elif mode == 6:
                     detection.detect_obj_yolov5(model = model_num, detect_target = 'land1', show = 1)
                     pass
                 
