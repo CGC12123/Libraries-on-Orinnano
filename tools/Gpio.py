@@ -1,10 +1,10 @@
 import sys
+import time
 from loguru import logger
 sys.path.append('/opt/nvidia/jetson-gpio/lib/python/')
 sys.path.append('/opt/nvidia/jetson-gpio/lib/python/Jetson/GPIO')
 
 import Jetson.GPIO as GPIO
-import time
 
 def GpioInit(output_pin, value: bool = 0, clean: bool = 0):
     GPIO.setmode(GPIO.BOARD)
@@ -22,21 +22,8 @@ def GpioInit(output_pin, value: bool = 0, clean: bool = 0):
     if clean:
         GPIO.cleanup()
 
-'''
-T: 20ms
-0.5ms
-STOP: 1.5ms
->1.5ms fan
-
-2.5max
-'''
-
-
 def GpioPwm(output_pin):
-    '''
-    
-    '''
-    # Pin Setup:
+    # 未完成测试
     # Board pin-numbering scheme
     GPIO.setmode(GPIO.BOARD)
     # set pin as an output pin with optional initial state of HIGH
@@ -44,17 +31,10 @@ def GpioPwm(output_pin):
     p = GPIO.PWM(output_pin, 50)
     # p.start(0)
     # p.ChangeDutyCycle(10)
-    p.stop()
+    # p.stop()
 
     # time.sleep(0.1)
 
 
 if __name__ == '__main__':
-    GpioInit(7, value=1)
-    time.sleep(1)
-    GpioInit(7, value=0)
-    time.sleep(1)
-    # GpioInit(7, value=1)
-    # time.sleep(1)
-    # GpioInit(7, value=0)
-    # time.sleep()
+    pass
